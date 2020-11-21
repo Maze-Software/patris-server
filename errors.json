@@ -1,0 +1,15 @@
+{
+    "0": "Something went wrong",
+    "1": "The parameter is missing",
+    "4": "The first name is not valid, it should be between 2 and 20 characters.",
+    "5": "The first is not valid",
+    "6": "The last name is not valid, it should be between 2 and 20 characters.",
+    "7": "The last name is not valid",
+    "8": "The password is not valid, it should be between 8 and 25 characters and at least one number",
+    "9": "The username is already taken",
+    "10": "The email is already used by someone",
+    "11": "The email is not valid",
+    "12": "Your age should between 8 and 150",
+    "13": "Userame or password are wrong",
+    "14": "Couldn't found the category"
+}
