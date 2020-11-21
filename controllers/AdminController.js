@@ -1,16 +1,16 @@
-const { param } = require('../routes/RegisterUser');
+const { param } = require('../routes/registeruser');
 var validator = require('validator');
-const errorHandler = require('./ErrorHandler');
-const { isAdmin, checkLogin, checkMissingParams } = require('./General');
+const errorHandler = require('./errorhandler');
+const { isAdmin, checkLogin, checkMissingParams } = require('./general');
 const bcrypt = require('bcryptjs');
 const config = require('../config.json');
 var jwt = require('jsonwebtoken');
 const { request } = require('express');
-const Category = require("../Schemas/Category");
-const Video = require('../Schemas/Videos');
-const VideoPart = require('../Schemas/VideoParts');
-const Admins = require('../Schemas/Admins');
-const { findById } = require('../Schemas/User');
+const Category = require("../schemas/category");
+const Video = require('../schemas/videos');
+const VideoPart = require('../schemas/videoparts');
+const Admins = require('../schemas/admins');
+const { findById } = require('../schemas/user');
 const adminLogin = async (req, res) => {
 
 

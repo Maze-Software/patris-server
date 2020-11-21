@@ -1,16 +1,16 @@
-const { param } = require('../routes/RegisterUser');
-const User = require('../Schemas/User');
-const Admins = require('../Schemas/Admins');
+const { param } = require('../routes/registeruser');
+const User = require('../schemas/user');
+const Admins = require('../schemas/admins');
 var validator = require('validator');
-const errorHandler = require('./ErrorHandler');
-const { checkMissingParams, checkLogin } = require('./General');
+const errorHandler = require('./errorhandler');
+const { checkMissingParams, checkLogin } = require('./general');
 const bcrypt = require('bcryptjs');
 const config = require('../config.json');
 var jwt = require('jsonwebtoken');
 const { request } = require('express');
-const Category = require("../Schemas/Category");
-const Video = require('../Schemas/Videos');
-const VideoPart = require('../Schemas/VideoParts');
+const Category = require("../schemas/category");
+const Video = require('../schemas/videos');
+const VideoPart = require('../schemas/videoparts');
 
 function firstNameValidator(firstName, res) {
     const length = validator.isByteLength(firstName, { min: 2, max: 20 }) // length should be between 4 and 10

@@ -2,7 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const route = express.Router();
-const { getCategory } = require('../controllers/UserController');
+const { getCategory } = require('../controllers/usercontroller');
 
 route.get('/', async (req, res) => {
     getCategory(req, res);
