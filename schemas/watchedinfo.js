@@ -6,7 +6,8 @@ const Schema = mongoose.Schema;
 const watchedInfoSchema = new Schema({
     userId: { type: String, required: true },
     videoId: { type: String, required: true },
-    timeOfWatched: { type: Number, required: true }
+    timeOfWatched: { type: Number, required: true },
+    isComplated: { type: Boolean, required: false, default: false },
 
 });
 

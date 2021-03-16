@@ -1,9 +1,9 @@
-const errorHandler = require('./errorhandler');
+const errorHandler = require('./ErrorHandler');
 var jwt = require('jsonwebtoken');
-const { use } = require('../routes/login');
+const { use } = require('../routes/Login');
 const config = require('../config.json');
-const User = require('../schemas/user');
-const Admins = require('../schemas/admins');
+const User = require('../Schemas/User');
+const Admins = require('../Schemas/Admins');
 const checkMissingParams = (array, req, res) => {
     try {
         array.forEach(key => {
@@ -54,7 +54,7 @@ const isAdmin = async (req) => {
 
         if (token) {
             var result = jwt.verify(token, config.privateKey);
-            const user = await Admins.findOne({ userName: result.userName })
+            const user = await Admins.findOne({ email: result.email })
 
             if (user && result.type == 'admin') {
                 return true;

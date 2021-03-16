@@ -6,6 +6,7 @@ const Schema = mongoose.Schema;
 const categorySchema = new Schema({
     categoryName: { type: String, required: true },
     categoryNumber: { type: Number, required: true, default: 0 },
+    lang: { type: String, required: true, default: "en" },
 
 });
 

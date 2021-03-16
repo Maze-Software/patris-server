@@ -1,16 +1,22 @@
-const { param } = require('../routes/registeruser');
+const { param } = require('../routes/RegisterUser');
 var validator = require('validator');
-const errorHandler = require('./errorhandler');
-const { isAdmin, checkLogin, checkMissingParams } = require('./general');
+const errorHandler = require('./ErrorHandler');
+const { isAdmin, checkLogin, checkMissingParams } = require('./General');
 const bcrypt = require('bcryptjs');
 const config = require('../config.json');
 var jwt = require('jsonwebtoken');
 const { request } = require('express');
-const Category = require("../schemas/category");
-const Video = require('../schemas/videos');
-const VideoPart = require('../schemas/videoparts');
-const Admins = require('../schemas/admins');
-const { findById } = require('../schemas/user');
+const Category = require("../Schemas/Category");
+const Video = require('../Schemas/Videos');
+const VideoPart = require('../Schemas/VideoParts');
+const Admins = require('../Schemas/Admins');
+const { findById } = require('../Schemas/User');
+const Axios = require('axios');
+const User = require('../Schemas/User');
+const Settings = require('../Schemas/Settings');
+const Prices = require('../Schemas/Prices');
+const { set } = require('mongoose');
+
 const adminLogin = async (req, res) => {
 
 
@@ -53,10 +59,12 @@ const addCategory = async (req, res) => {
     if (isAdmin(req)) { // Admin ise
         const params = ['categoryName', 'categoryNumber'];
         if (!checkMissingParams(params, req, res)) return;
-        const { categoryName, categoryNumber } = req.body;
+        let { categoryName, categoryNumber, lang } = req.body;
+        if (!lang) lang = "en";
         const addCategory = new Category({
             categoryName,
-            categoryNumber
+            categoryNumber,
+            lang
         });
         await addCategory.save();
         res.status(200).send({ message: "category added" })
@@ -82,10 +90,13 @@ const getCategory = async (req, res) => {
 const getAllCategories = async (req, res) => {
     try {
         if (isAdmin(req)) { // Admin ise
-            // No need any parameters
-            const category = await Category.find()
+            let { lang } = req.body;
 
+            let category;
+            if (!lang || lang.length < 1) category = await Category.find()
+            else category = await Category.find({ lang })
             category.sort((a, b) => (a.categoryNumber > b.categoryNumber) ? 1 : ((b.categoryNumber > a.categoryNumber) ? -1 : 0));
+
             res.status(200).send({ data: category })
         }
     }
@@ -152,15 +163,53 @@ const addVideo = async (req, res) => {
     if (isAdmin(req)) { // Admin ise
         const params = ['categoryId', 'videoNumber', 'videoName', 'videoSource'];
         if (!checkMissingParams(params, req, res)) return;
-        const { categoryId, videoNumber, videoName, videoSource } = req.body;
-        const addVideo = new Video({
-            videoName,
-            categoryId,
-            videoNumber,
-            videoSource
-        });
-        await addVideo.save();
-        res.status(200).send({ message: "video added" })
+        const { categoryId, videoNumber, videoName, videoSource, freeTrial } = req.body;
+
+        let videoId = videoSource.split("/");
+        videoId = videoId[videoId.length - 1];
+
+        Axios.get('https://player.vimeo.com/video/' + videoId).then(async (response) => {
+            let startIndex = response.data.search('"duration":')
+            let lastIndex = response.data.search('"thumbs"')
+            lastIndex = lastIndex - startIndex;
+            let duration = response.data.substr(startIndex + 11, lastIndex - 12)
+
+
+            let startIndex2 = response.data.search('"thumbs":')
+            let lastIndex2 = response.data.search('"owner":')
+            lastIndex2 = lastIndex2 - startIndex2;
+            let thumb = response.data.substr(startIndex2 + 9, lastIndex2 - 10)
+
+            thumb = JSON.parse(thumb)
+
+
+
+            const addVideo = new Video({
+                videoName,
+                categoryId,
+                videoNumber,
+                videoSource,
+                duration,
+                thumb,
+                freeTrial
+            });
+
+
+            await addVideo.save();
+            res.status(200).send({ message: "video added" })
+
+
+        }).catch(error => {
+            new errorHandler(res, 500, 0)
+        })
+
+
+
+
+
+
+
+
 
     }
 }
@@ -200,9 +249,9 @@ const getAllVideos = async (req, res) => {
 const updateVideo = async (req, res) => {
     try {
         if (isAdmin(req)) { // Admin ise
-            const params = ['videoId', 'categoryId', 'videoName', 'videoNumber', 'videoSource'];
+            const params = ['videoId', 'categoryId', 'videoName', 'videoNumber', 'videoSource', 'freeTrial'];
             // if (!checkMissingParams(params, req, res)) return;
-            const { videoId, categoryId, videoName, videoNumber, videoSource } = req.body;
+            const { videoId, categoryId, videoName, videoNumber, videoSource, freeTrial } = req.body;
 
             const video = await Video.findById(videoId)
 
@@ -210,7 +259,8 @@ const updateVideo = async (req, res) => {
                 categoryId,
                 videoNumber,
                 videoName,
-                videoSource
+                videoSource,
+                freeTrial
 
             })
             res.status(200).send({ message: 'updated' })
@@ -399,7 +449,158 @@ const deleteAdmin = async (req, res) => {
     }
 }
 
+const getAllUser = async (req, res) => {
+    try {
+        if (isAdmin(req)) { // Admin ise
+
+            const users = await User.find()
+            res.status(200).send({ users: users })
+        }
+    }
+    catch (e) {
+        new errorHandler(res, 500, 0)
+    }
+
+}
+
+const getSettings = async (req, res) => {
+    try {
+
+
+        const settings = await Settings.find().limit(1)
+        res.status(200).send({ settings: settings[0] })
+
+    }
+    catch (e) {
+        new errorHandler(res, 500, 0)
+    }
+
+}
+
+const changeSettings = async (req, res) => {
+    try {
+        if (isAdmin(req)) { // Admin ise
+
+
+            const { mainColor,
+                secondColor,
+                shareButton,
+                profileColor,
+                faqColor,
+                savedColor,
+                contact,
+                navigationColor } = req.body;
+
+            const settingsCount = await Settings.estimatedDocumentCount()
+            if (settingsCount > 0) {
+
+                const settings = await Settings.updateOne({}, {
+                    mainColor,
+                    secondColor,
+                    shareButton,
+                    profileColor,
+                    faqColor,
+                    savedColor,
+                    contact,
+                    navigationColor
+                });
+                res.status(200).send({ message: "updated", settingsCount: settingsCount })
+
+            }
+            else {
+
+                const newSettings = new Settings({
+                    mainColor,
+                    secondColor,
+                    shareButton,
+                    profileColor,
+                    faqColor,
+                    savedColor,
+                    contact,
+                    navigationColor
+                });
+                newSettings.save();
+                res.status(200).send({ message: "created" })
+            }
+
+        }
+    }
+    catch (e) {
+        new errorHandler(res, 500, 0)
+    }
+
+}
+
+const getPrices = async (req, res) => {
+    try {
+
+        let { lang } = req.body;
+        if (!lang) lang = "en";
+
+        if (lang == "all") {
+            const prices = await Prices.find().sort({ month: 1 })
+            res.status(200).send({ prices: prices })
+        }
+        else {
+            const prices = await Prices.find({ lang: lang }).sort({ month: 1 })
+            res.status(200).send({ price: prices })
+        }
+
+
+    }
+    catch (e) {
+        // console.log(e)
+        new errorHandler(res, 500, 0)
+    }
+
+}
+
+const changePrices = async (req, res) => {
+    try {
+        if (isAdmin(req)) { // Admin ise
+            const { lang, month, price, priceId, currency } = req.body;
+            const updatePrice = await Prices.findByIdAndUpdate(priceId, { lang: lang, month: month, price: price, currency: currency });
+            res.status(200).send({ message: "updated" })
+        }
+    }
+    catch (e) {
+        new errorHandler(res, 500, 0)
+    }
+
+}
+
+
+const deletePrice = async (req, res) => {
+    try {
+        if (isAdmin(req)) { // Admin ise
+            const { priceId } = req.body;
+            const deletePrice = await Prices.findByIdAndDelete(priceId);
+            res.status(200).send({ message: "deleted" })
+        }
+    }
+    catch (e) {
+        new errorHandler(res, 500, 0)
+    }
+
+}
+
+const addPrices = async (req, res) => {
+    try {
+        if (isAdmin(req)) { // Admin ise
+            const { lang, month, price, currency } = req.body;
+            const createPrice = new Prices({ lang, month, price, currency });
+            await createPrice.save();
+            res.status(200).send({ message: "created" })
+        }
+    }
+    catch (e) {
+        new errorHandler(res, 500, 0)
+    }
+
+}
+
+
 
 
 // Video Part İşlemleri End
-module.exports = { adminLogin, addCategory, getCategory, getAllCategories, updateCategory, deleteCategory, addVideo, getVideo, getAllVideos, updateVideo, deleteVideo, addVideoPart, getVideoPart, getAllVideoParts, updateVideoPart, deleteVideoPart, addAdmin, getAllAdmins, updateAdmin, deleteAdmin }
+module.exports = { adminLogin, addCategory, getCategory, getAllCategories, updateCategory, deleteCategory, addVideo, getVideo, getAllVideos, updateVideo, deleteVideo, addVideoPart, getVideoPart, getAllVideoParts, updateVideoPart, deleteVideoPart, addAdmin, getAllAdmins, updateAdmin, deleteAdmin, getAllUser, changeSettings, getSettings, getPrices, changePrices, addPrices, deletePrice }

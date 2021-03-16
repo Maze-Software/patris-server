@@ -1,4 +1,15 @@
 {
-    "DBuri": "mongodb+srv://patris:VU4vpD4iV8gJFrQr@cluster0.wzfpf.mongodb.net/patris?retryWrites=true&w=majority",
-    "privateKey": "secretKey00009"
+    "DBuri": "mongodb://127.0.0.1:27017/?authSource=admin&readPreference=primary&gssapiServiceName=mongodb&appname=MongoDB%20Compass&ssl=false",
+    "privateKey": "secretKey00009",
+    "mailAdress": "ledmago@gmail.com",
+    "iyziCo": {
+        "apiKey": "sandbox-gi4Xr0kCAnf3pC6gz0sK99eqU4c9GYRR",
+        "secretKey": "sandbox-f3fVGFkpNxRAKxVMNktbMcNLkmZFsgnR",
+        "uri": "https://sandbox-api.iyzipay.com"
+    },
+    "prices": {
+        "3": "499.0",
+        "6": "599.0",
+        "12": "699.0"
+    }
 }

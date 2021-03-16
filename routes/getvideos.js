@@ -2,7 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const route = express.Router();
-const { getVideo } = require('../controllers/usercontroller');
+const { getVideo } = require('../Controllers/UserController');
 
 route.get('/', async (req, res) => {
     getVideo(req, res);

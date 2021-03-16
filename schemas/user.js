@@ -12,8 +12,12 @@ const userSchema = new Schema({
     city: { type: String, required: false },
     university: { type: String, required: false },
     grade: { type: String, required: false },
+    subscription: { type: Boolean, required: false, default: false },
+    subscriptionEndDate: { type: Date, required: false, default: new Date },
 });
 
+
+// subscription : 0 (Üyelik Yok) , 1 ("")
 userSchema.set('toJSON', { virtuals: true });
 
 
