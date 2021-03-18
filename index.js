@@ -84,6 +84,7 @@ app.use("/api/changeprices", require("./routes/ChangePrices"));
 app.use("/api/addprice", require("./routes/AddPrice"));
 app.use("/api/deleteprice", require("./routes/DeletePrice"));
 app.use("/api/getusercount", require("./routes/Admin/getUserCount"));
+app.use("/api/removeuser", require("./routes/Admin/RemoveUser"));
 // -- ROUTES END -- //
 
 app.get("*", function (req, res) {

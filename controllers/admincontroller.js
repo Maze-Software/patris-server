@@ -434,6 +434,19 @@ const deleteAdmin = async (req, res) => {
   }
 };
 
+const removeUser = async (req, res) => {
+  try {
+    if (isAdmin(req)) {
+      const { id } = req.body;
+      const user = await User.findByIdAndDelete(id);
+
+      res.status(200).send({ message: "deleted" });
+    }
+  } catch (e) {
+    new errorHandler(res, 500, 0);
+  }
+};
+
 const getAllUser = async (req, res) => {
   try {
     if (isAdmin(req)) {
@@ -616,4 +629,5 @@ module.exports = {
   addPrices,
   deletePrice,
   getUserCount,
+  removeUser,
 };
