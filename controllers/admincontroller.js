@@ -558,12 +558,22 @@ const changePrices = async (req, res) => {
   try {
     if (isAdmin(req)) {
       // Admin ise
-      const { lang, month, price, priceId, currency } = req.body;
+      const {
+        lang,
+        month,
+        price,
+        priceId,
+        currency,
+        priceText,
+        priceContent,
+      } = req.body;
       const updatePrice = await Prices.findByIdAndUpdate(priceId, {
         lang: lang,
         month: month,
         price: price,
         currency: currency,
+        priceText: priceText,
+        priceContent: priceContent,
       });
       res.status(200).send({ message: "updated" });
     }
@@ -589,8 +599,22 @@ const addPrices = async (req, res) => {
   try {
     if (isAdmin(req)) {
       // Admin ise
-      const { lang, month, price, currency } = req.body;
-      const createPrice = new Prices({ lang, month, price, currency });
+      const {
+        lang,
+        month,
+        price,
+        currency,
+        priceText,
+        priceContent,
+      } = req.body;
+      const createPrice = new Prices({
+        lang,
+        month,
+        price,
+        currency,
+        priceText,
+        priceContent,
+      });
       await createPrice.save();
       res.status(200).send({ message: "created" });
     }
