@@ -31,6 +31,11 @@ app.use((req, res, next) => {
   next();
 });
 
+global.SOCKET_STATE = null; // diğer dosyalardan socket'e ulaşmak için
+global.socketUsers = [];
+
+
+
 // -- ROUTES -- //
 // USER
 app.use("/api/registeruser", require("./routes/RegisterUser"));
@@ -87,8 +92,24 @@ app.use("/api/getusercount", require("./routes/Admin/getUserCount"));
 app.use("/api/removeuser", require("./routes/Admin/RemoveUser"));
 // -- ROUTES END -- //
 
-app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
+
+// SOCKET EMBEDDING //
+
+const socketInit = require("./socket/index.js");
+app.get("/", function (req, res) {
+  res.sendFile(__dirname + "/Socket/html/index.html");
 });
+
+
+socketInit(server);
+// SOCKET EMBEDDING CLOSE //
+
+
+
+// app.get("*", function (req, res) {
+//   res.sendFile(path.join(__dirname, "build", "index.html"));
+// });
+
+
 
 server.listen(Port, () => console.log("Server started"));

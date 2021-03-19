@@ -59,8 +59,8 @@ function CapitalizeString(string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLocaleLowerCase()
 }
 
-const createJWT = (email) => {
-    var JWT = jwt.sign({ email: email, type: 'user' }, config.privateKey);
+const createJWT = (email, userId) => {
+    var JWT = jwt.sign({ email: email, type: 'user', userId: userId }, config.privateKey);
     return JWT;
 }
 
@@ -114,7 +114,7 @@ const registerUser = async (req, res) => {
 
 
             await newUser.save(); // Insert to database
-            const token = createJWT(email) // Create token
+            const token = createJWT(email, newUser._id) // Create token
             res.cookie('token', token); // set token to the cookie
             res.status(200).send({ message: "User registered successfully", token: token, user: newUser }) // send response;
 
@@ -172,10 +172,10 @@ const login = async (req, res) => {
 
     if (await checkLogin(req) == false) {
         const { email, password } = req.body;
-        const userByEmail = await User.findOne({ email });
+        const userByEmail = await User.findOne({ email: email });
         if (userByEmail) {
             const comparePassword = await bcrypt.compare(password, userByEmail.hash)
-            const token = jwt.sign({ email: email }, config.privateKey);
+            const token = createJWT(email, userByEmail._id);
             if (comparePassword) {
                 res.cookie('token', token); // set token to the cookie
                 res.status(200).send({ token: token, user: userByEmail })
@@ -185,7 +185,7 @@ const login = async (req, res) => {
             }
         }
         else {
-            new errorHandler(res, 500, 13)
+            new errorHandler(res, 404, 13)
         }
 
     }
