@@ -227,7 +227,7 @@ const getAllVideos = async (req, res) => {
             let nowDate = new Date().getTime();
             let constraint = getuser.subscription && nowDate < subscriptionEndDate;
 
-
+            // TODO: Videoları Açarken paketin içerisinde olup olmadığına da bak
             if (!constraint) {
                 video.map((item) => {
                     item.videoSource = !constraint && !item.freeTrial ? false : item.videoSource;
