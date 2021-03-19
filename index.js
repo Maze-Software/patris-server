@@ -90,6 +90,7 @@ app.use("/api/addprice", require("./routes/AddPrice"));
 app.use("/api/deleteprice", require("./routes/DeletePrice"));
 app.use("/api/getusercount", require("./routes/Admin/getUserCount"));
 app.use("/api/removeuser", require("./routes/Admin/RemoveUser"));
+app.use("/api/selectvideos", require("./routes/Admin/SelectVideos"));
 // -- ROUTES END -- //
 
 

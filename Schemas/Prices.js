@@ -10,6 +10,7 @@ const paymentsSchema = new Schema({
   lang: { type: String, required: true, default: "en" },
   priceText: { type: String, required: false },
   priceContent: { type: String, required: false },
+  videos: { type: Array, required: false, default: [] },
   // tr: { type: Object, required: true },
   // ru: { type: Object, required: true },
   // en: { type: Object, required: true },

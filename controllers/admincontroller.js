@@ -89,8 +89,8 @@ const getAllCategories = async (req, res) => {
         a.categoryNumber > b.categoryNumber
           ? 1
           : b.categoryNumber > a.categoryNumber
-          ? -1
-          : 0
+            ? -1
+            : 0
       );
 
       res.status(200).send({ data: category });
@@ -218,8 +218,8 @@ const getAllVideos = async (req, res) => {
         a.videoNumber > b.videoNumber
           ? 1
           : b.videoNumber > a.videoNumber
-          ? -1
-          : 0
+            ? -1
+            : 0
       );
       res.status(200).send({ data: video });
     }
@@ -566,6 +566,7 @@ const changePrices = async (req, res) => {
         currency,
         priceText,
         priceContent,
+        videos
       } = req.body;
       const updatePrice = await Prices.findByIdAndUpdate(priceId, {
         lang: lang,
@@ -574,6 +575,7 @@ const changePrices = async (req, res) => {
         currency: currency,
         priceText: priceText,
         priceContent: priceContent,
+        videos: videos
       });
       res.status(200).send({ message: "updated" });
     }
@@ -606,6 +608,7 @@ const addPrices = async (req, res) => {
         currency,
         priceText,
         priceContent,
+        videos
       } = req.body;
       const createPrice = new Prices({
         lang,
@@ -614,6 +617,7 @@ const addPrices = async (req, res) => {
         currency,
         priceText,
         priceContent,
+        videos
       });
       await createPrice.save();
       res.status(200).send({ message: "created" });
@@ -623,8 +627,35 @@ const addPrices = async (req, res) => {
   }
 };
 
+
+const panelSelectVideos = async (req, res) => {
+  try {
+    if (isAdmin(req)) {
+      // Admin ise
+      const { lang } = req.body;
+      const categories = await Category.find({ lang: lang }).lean();
+
+      for (let i = 0; i < categories.length; i++) {
+        const category = categories[i];
+        const videos = await Video.find({ categoryId: category._id }).lean();
+        videos.forEach((e) => e.videoSource = ""); // güvenlik gerekçesi ile
+        category.videos = videos;
+      }
+
+
+
+
+      res.status(200).send({ categories: categories });
+    }
+  } catch (e) {
+    new errorHandler(res, 500, 0);
+  }
+
+}
+
 // Video Part İşlemleri End
 module.exports = {
+  panelSelectVideos,
   adminLogin,
   addCategory,
   getCategory,
