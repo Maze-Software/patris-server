@@ -5,7 +5,6 @@ const config = require('../config.json');
 async function MaxConnectionHandler(socket, user, socketId) {
     global.socketUsers.push({ socketId: socketId, adminEmail: user.email, userId: user.userId });
     let currentConnection = global.socketUsers.filter(e => e.userId == user.userId).length
-    console.log(currentConnection)
     if (currentConnection > config.maxClient) {
         socket.emit("maxConnectionExceed", { message: true })
         socket.disconnect();
