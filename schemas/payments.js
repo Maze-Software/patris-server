@@ -9,7 +9,8 @@ const paymentsSchema = new Schema({
     amount: { type: Number, required: true },
     subscriptionType: { type: Number, required: true },
     date: { type: Date, required: true },
-    isPaid: { type: Boolean, required: true, default: false }
+    isPaid: { type: Boolean, required: true, default: false },
+    priceId: { type: String, required: true }
 
 });
 

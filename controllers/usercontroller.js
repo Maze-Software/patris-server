@@ -707,10 +707,10 @@ const paymentForm = async (req, res) => {
             amount: paidPrice,
             subscriptionType: getPrice.month,
             date: new Date(),
-            isPaid: false
+            isPaid: false,
+            priceId: priceId
         })
         await createPayment.save();
-
         if (result.status == 'success') {
             res.send(`
             <html>
@@ -757,15 +757,6 @@ const paymentCallBack = async (req, res) => {
         if (result.status == 'success') {
 
             // Payment Successful
-
-
-
-
-
-
-
-
-
             // try {
 
             const findPayment = await Payments.findOne({ iyziCoToken: req.body.token })
@@ -776,14 +767,9 @@ const paymentCallBack = async (req, res) => {
                 const newPayment = await findPayment.updateOne({ isPaid: true })
                 const newDate = new Date();
                 const subscriptionEndDate = newDate.setMonth(newDate.getMonth() + findPayment.subscriptionType)
-                await user.updateOne({ subscription: true, subscriptionEndDate: subscriptionEndDate })
+                await user.updateOne({ subscription: true, subscriptionEndDate: subscriptionEndDate, priceId: findPayment.priceId })
                 res.status(200).send("Payment is successful")
             }
-
-
-
-
-
 
             // }
             // catch (e) {
