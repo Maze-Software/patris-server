@@ -282,11 +282,31 @@ const getAllCategories = async (req, res) => {
 }
 
 const getListCombo = async (req, res) => {
-    try {
+    // try {
+
+        const token = req.cookies.token;
+        if (token) {
+            var userResult = jwt.verify(token, config.privateKey);
+            const user = await User.findOne({ email: userResult.email })
+            if (user) {
+
+                let userSubscripton = false;
+                let userAccessVideos = [];
+
+                let subscriptionEndDate = new Date(user.subscriptionEndDate).getTime();
+                let nowDate = new Date().getTime();
+                const userPriceId = user.priceId;
+
+                if (nowDate < subscriptionEndDate) {
+                    userSubscripton = true;
+                   const price = await Prices.findById(userPriceId);
+                   userAccessVideos = price.videos
+                }
+                
+
+
 
         var comboList = [];
-        if (await checkLogin(req)) { // Admin ise
-            // No need any parameters
             let { lang } = req.body;
             if (!lang) lang = "en";
 
@@ -301,12 +321,29 @@ const getListCombo = async (req, res) => {
 
                 for (var videoIndex = 0; videoIndex < videos.length; videoIndex++) {
                     const currentVideo = videos[videoIndex];
+                    
+                    currentVideo.lock = true;
+
+
+                    if(currentVideo.freeTrial)
+                    {
+                        currentVideo.lock = false;
+                    }
+                    else if(userAccessVideos.includes(currentVideo._id))
+                    {
+                        currentVideo.lock = false;
+                    }
+
+                    if(currentVideo.lock == true) // güvenlik
+                    {
+                        currentVideo.videoSource = "";
+                    }
+
                     const videoPart = await VideoPart.find({ videoId: currentVideo._id }).lean();
                     currentVideo.videoparts = videoPart;
                 }
 
                 if (videos) {
-
                     currentCategory.videos = videos;
                 }
                 else {
@@ -320,12 +357,20 @@ const getListCombo = async (req, res) => {
 
 
             category.sort((a, b) => (a.categoryNumber > b.categoryNumber) ? 1 : ((b.categoryNumber > a.categoryNumber) ? -1 : 0));
+           
+            
+           
+       
+            
             res.status(200).send({ data: comboList })
-        }
+        
     }
-    catch (e) {
-        new errorHandler(res, 500, 0)
     }
+    // }
+    // catch (e) {
+    //     new errorHandler(res, 500, 0)
+    // }
+    
 }
 
 
@@ -794,7 +839,27 @@ const paymentCallBack = async (req, res) => {
 }
 const getSuggestedVideos = async (req, res) => {
     // try {
-    if (await checkLogin(req)) {
+  
+        const token = req.cookies.token;
+        if (token) {
+            var userResult = jwt.verify(token, config.privateKey);
+            const user = await User.findOne({ email: userResult.email })
+            if (user) {
+
+                let userSubscripton = false;
+                let userAccessVideos = [];
+
+                let subscriptionEndDate = new Date(user.subscriptionEndDate).getTime();
+                let nowDate = new Date().getTime();
+                const userPriceId = user.priceId;
+
+                if (nowDate < subscriptionEndDate) {
+                    userSubscripton = true;
+                   const price = await Prices.findById(userPriceId);
+                   userAccessVideos = price.videos
+                }
+
+
 
         let returnList = [];
         let { lang } = req.body;
@@ -805,6 +870,25 @@ const getSuggestedVideos = async (req, res) => {
         for (var i = 0; i < getCategory.length; i++) {
             let videos = await Video.find({ categoryId: getCategory[i]._id }).limit(4).lean();
             for (var q = 0; q < videos.length; q++) {
+                const currentVideo = videos[q];
+                currentVideo.lock = true;
+
+
+                if(currentVideo.freeTrial)
+                {
+                    currentVideo.lock = false;
+                }
+                else if(userAccessVideos.includes(currentVideo._id))
+                {
+                    currentVideo.lock = false;
+                }
+
+                if(currentVideo.lock == true) // güvenlik
+                {
+                    currentVideo.videoSource = "";
+                }
+
+
                 videos[q].category = getCategory[i];
             }
 
@@ -819,6 +903,7 @@ const getSuggestedVideos = async (req, res) => {
 
         res.send({ data: returnList })
     }
+}
     else {
         new errorHandler(res, 500, 0);
     }
