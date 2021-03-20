@@ -481,7 +481,6 @@ const changePassword = async (req, res) => {
 const getUserPrice = async (priceId) =>
 {
     try{
-        console.log(priceId)
         if(priceId)
         {
             const userPrice =  await Prices.findById(priceId);

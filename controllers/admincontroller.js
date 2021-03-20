@@ -16,6 +16,7 @@ const User = require("../Schemas/User");
 const Settings = require("../Schemas/Settings");
 const Prices = require("../Schemas/Prices");
 const { set } = require("mongoose");
+const WatchedInfo = require("../Schemas/WatchedInfo");
 
 const adminLogin = async (req, res) => {
   if ((await checkLogin(req)) == false) {
@@ -272,11 +273,21 @@ const deleteVideo = async (req, res) => {
   try {
     if (isAdmin(req)) {
       // Admin ise
-      const params = ["videoId"];
+      // const params = ["videoId"];
       // if (!checkMissingParams(params, req, res)) return;
       const { videoId } = req.body;
       const video = await Video.findById(videoId);
       await video.deleteOne();
+
+      await VideoPart.deleteMany({ videoId: videoId }); // video partları da siliyoruz
+
+      await WatchedInfo.deleteMany({ videoId: videoId });
+
+      await Prices.updateMany({}, { $pull: { videos: videoId } })
+
+
+
+
       res.status(200).send({ message: "deleted" });
     }
   } catch (e) {
