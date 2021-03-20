@@ -295,12 +295,11 @@ const getListCombo = async (req, res) => {
 
                 let subscriptionEndDate = new Date(user.subscriptionEndDate).getTime();
                 let nowDate = new Date().getTime();
-                const userPriceId = user.priceId;
 
                 if (nowDate < subscriptionEndDate) {
                     userSubscripton = true;
-                   const price = await Prices.findById(userPriceId);
-                   userAccessVideos = price.videos
+                    const price = await getUserPrice(user.priceId)
+                   if(price) {userAccessVideos = price.videos}
                 }
                 
 
@@ -479,6 +478,27 @@ const changePassword = async (req, res) => {
     // }
 }
 
+const getUserPrice = async (priceId) =>
+{
+    try{
+        console.log(priceId)
+        if(priceId)
+        {
+            const userPrice =  await Prices.findById(priceId);
+            return userPrice;
+        }
+        else{
+            return null;
+        }
+    }
+    catch(e)
+    {
+       
+        return null;
+    }
+    
+    
+}
 
 const isUserSubscribed = async (req, res) => {
 
@@ -490,8 +510,11 @@ const isUserSubscribed = async (req, res) => {
             let subscriptionEndDate = new Date(user.subscriptionEndDate).getTime();
             let nowDate = new Date().getTime();
             // if (user.subscription && nowDate < subscriptionEndDate) 
+      
             if (nowDate < subscriptionEndDate) {
-                res.status(200).send({ subscribe: true, subscriptionEndDate: subscriptionEndDate });
+
+                const priceInformationGet = await getUserPrice(user.priceId);
+                res.status(200).send({ subscribe: true, subscriptionEndDate: subscriptionEndDate,priceInformation:priceInformationGet });
             }
             else {
                 res.status(500).send({ subscribe: false });
@@ -851,12 +874,15 @@ const getSuggestedVideos = async (req, res) => {
 
                 let subscriptionEndDate = new Date(user.subscriptionEndDate).getTime();
                 let nowDate = new Date().getTime();
-                const userPriceId = user.priceId;
 
                 if (nowDate < subscriptionEndDate) {
                     userSubscripton = true;
-                   const price = await Prices.findById(userPriceId);
-                   userAccessVideos = price.videos
+                   const price = await getUserPrice(user.priceId)
+                   if(price)
+                   {
+                    userAccessVideos = price.videos
+                   }
+                   
                 }
 
 
