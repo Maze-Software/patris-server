@@ -11,7 +11,7 @@ const userSchema = new Schema({
     country: { type: String, required: false },
     city: { type: String, required: false },
     university: { type: String, required: false },
-    grade: { type: String, required: false },
+    phone: { type: String, required: false },
     subscription: { type: Boolean, required: false, default: false },
     subscriptionEndDate: { type: Date, required: false, default: new Date },
     priceId: { type: String, required: false, default: null }

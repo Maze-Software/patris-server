@@ -81,12 +81,12 @@ const registerUser = async (req, res) => {
             'country',
             'university',
             'city',
-            'grade'
+            'phone'
         ];
 
         if (!checkMissingParams(params, req, res)) return;
 
-        let { firstName, lastName, email, password, city, country, university, grade } = req.body;
+        let { firstName, lastName, email, password, city, country, university, phone } = req.body;
         firstName = CapitalizeString(firstName);
         lastName = CapitalizeString(lastName);
         email = email.toLowerCase();
@@ -108,7 +108,7 @@ const registerUser = async (req, res) => {
                 country,
                 university,
                 city,
-                grade
+                phone
             });
 
 
@@ -137,9 +137,22 @@ const registerUser = async (req, res) => {
 
 };
 
-const logOut = (req, res) => {
-    res.clearCookie('token');
-    res.status(202).send({ message: 'Log Outed Successfully' })
+const logOut = async (req, res) => {
+
+    try {
+        const token = req.body.token ? req.body.token : req.cookies.token;
+        if (token) {
+            var result = jwt.verify(token, config.privateKey);
+            const user = await User.findOne({ email: result.email });
+            global.socketUsers = global.socketUsers.filter(e => e.userId != user._id)
+        }
+        res.clearCookie('token');
+        res.status(202).send({ message: 'Log Outed Successfully' })
+    }
+    catch (e) {
+        res.send("ok");
+    }
+
 };
 const refreshToken = async (req, res) => {
     try {
@@ -284,28 +297,28 @@ const getAllCategories = async (req, res) => {
 const getListCombo = async (req, res) => {
     // try {
 
-        const token = req.cookies.token;
-        if (token) {
-            var userResult = jwt.verify(token, config.privateKey);
-            const user = await User.findOne({ email: userResult.email })
-            if (user) {
+    const token = req.cookies.token;
+    if (token) {
+        var userResult = jwt.verify(token, config.privateKey);
+        const user = await User.findOne({ email: userResult.email })
+        if (user) {
 
-                let userSubscripton = false;
-                let userAccessVideos = [];
+            let userSubscripton = false;
+            let userAccessVideos = [];
 
-                let subscriptionEndDate = new Date(user.subscriptionEndDate).getTime();
-                let nowDate = new Date().getTime();
+            let subscriptionEndDate = new Date(user.subscriptionEndDate).getTime();
+            let nowDate = new Date().getTime();
 
-                if (nowDate < subscriptionEndDate) {
-                    userSubscripton = true;
-                    const price = await getUserPrice(user.priceId)
-                   if(price) {userAccessVideos = price.videos}
-                }
-                
-
+            if (nowDate < subscriptionEndDate) {
+                userSubscripton = true;
+                const price = await getUserPrice(user.priceId)
+                if (price) { userAccessVideos = price.videos }
+            }
 
 
-        var comboList = [];
+
+
+            var comboList = [];
             let { lang } = req.body;
             if (!lang) lang = "en";
 
@@ -320,20 +333,18 @@ const getListCombo = async (req, res) => {
 
                 for (var videoIndex = 0; videoIndex < videos.length; videoIndex++) {
                     const currentVideo = videos[videoIndex];
-                    
+
                     currentVideo.lock = true;
 
 
-                    if(currentVideo.freeTrial)
-                    {
+                    if (currentVideo.freeTrial) {
                         currentVideo.lock = false;
                     }
-                    else if(userAccessVideos.includes(currentVideo._id))
-                    {
+                    else if (userAccessVideos.includes(currentVideo._id)) {
                         currentVideo.lock = false;
                     }
 
-                    if(currentVideo.lock == true) // güvenlik
+                    if (currentVideo.lock == true) // güvenlik
                     {
                         currentVideo.videoSource = "";
                     }
@@ -356,20 +367,20 @@ const getListCombo = async (req, res) => {
 
 
             category.sort((a, b) => (a.categoryNumber > b.categoryNumber) ? 1 : ((b.categoryNumber > a.categoryNumber) ? -1 : 0));
-           
-            
-           
-       
-            
+
+
+
+
+
             res.status(200).send({ data: comboList })
-        
-    }
+
+        }
     }
     // }
     // catch (e) {
     //     new errorHandler(res, 500, 0)
     // }
-    
+
 }
 
 
@@ -405,7 +416,7 @@ const getAllVideoParts = async (req, res) => {
 const changeUserProfile = async (req, res) => {
     try {
         if (await checkLogin(req)) { // Admin ise
-            const { firstName, lastName, email, country, university, city, grade } = req.body;
+            const { firstName, lastName, email, country, university, city, phone } = req.body;
 
             const token = req.cookies.token;
             var userResult = jwt.verify(token, config.privateKey);
@@ -420,7 +431,7 @@ const changeUserProfile = async (req, res) => {
 
                 }
 
-                await user.updateOne({ firstName, lastName, email, country, university, city, grade });
+                await user.updateOne({ firstName, lastName, email, country, university, city, phone });
                 const newUser = await User.findById(user._id)
 
                 res.status(200).send({ token: newToken, user: newUser })
@@ -478,25 +489,22 @@ const changePassword = async (req, res) => {
     // }
 }
 
-const getUserPrice = async (priceId) =>
-{
-    try{
-        if(priceId)
-        {
-            const userPrice =  await Prices.findById(priceId);
+const getUserPrice = async (priceId) => {
+    try {
+        if (priceId) {
+            const userPrice = await Prices.findById(priceId);
             return userPrice;
         }
-        else{
+        else {
             return null;
         }
     }
-    catch(e)
-    {
-       
+    catch (e) {
+
         return null;
     }
-    
-    
+
+
 }
 
 const isUserSubscribed = async (req, res) => {
@@ -509,11 +517,11 @@ const isUserSubscribed = async (req, res) => {
             let subscriptionEndDate = new Date(user.subscriptionEndDate).getTime();
             let nowDate = new Date().getTime();
             // if (user.subscription && nowDate < subscriptionEndDate) 
-      
+
             if (nowDate < subscriptionEndDate) {
 
                 const priceInformationGet = await getUserPrice(user.priceId);
-                res.status(200).send({ subscribe: true, subscriptionEndDate: subscriptionEndDate,priceInformation:priceInformationGet });
+                res.status(200).send({ subscribe: true, subscriptionEndDate: subscriptionEndDate, priceInformation: priceInformationGet });
             }
             else {
                 res.status(500).send({ subscribe: false });
@@ -861,74 +869,71 @@ const paymentCallBack = async (req, res) => {
 }
 const getSuggestedVideos = async (req, res) => {
     // try {
-  
-        const token = req.cookies.token;
-        if (token) {
-            var userResult = jwt.verify(token, config.privateKey);
-            const user = await User.findOne({ email: userResult.email })
-            if (user) {
 
-                let userSubscripton = false;
-                let userAccessVideos = [];
+    const token = req.cookies.token;
+    if (token) {
+        var userResult = jwt.verify(token, config.privateKey);
+        const user = await User.findOne({ email: userResult.email })
+        if (user) {
 
-                let subscriptionEndDate = new Date(user.subscriptionEndDate).getTime();
-                let nowDate = new Date().getTime();
+            let userSubscripton = false;
+            let userAccessVideos = [];
 
-                if (nowDate < subscriptionEndDate) {
-                    userSubscripton = true;
-                   const price = await getUserPrice(user.priceId)
-                   if(price)
-                   {
+            let subscriptionEndDate = new Date(user.subscriptionEndDate).getTime();
+            let nowDate = new Date().getTime();
+
+            if (nowDate < subscriptionEndDate) {
+                userSubscripton = true;
+                const price = await getUserPrice(user.priceId)
+                if (price) {
                     userAccessVideos = price.videos
-                   }
-                   
                 }
 
-
-
-        let returnList = [];
-        let { lang } = req.body;
-        if (!lang) lang = "en";
-
-
-        const getCategory = await Category.find({ lang: lang }).lean();
-        for (var i = 0; i < getCategory.length; i++) {
-            let videos = await Video.find({ categoryId: getCategory[i]._id }).limit(4).lean();
-            for (var q = 0; q < videos.length; q++) {
-                const currentVideo = videos[q];
-                currentVideo.lock = true;
-
-
-                if(currentVideo.freeTrial)
-                {
-                    currentVideo.lock = false;
-                }
-                else if(userAccessVideos.includes(currentVideo._id))
-                {
-                    currentVideo.lock = false;
-                }
-
-                if(currentVideo.lock == true) // güvenlik
-                {
-                    currentVideo.videoSource = "";
-                }
-
-
-                videos[q].category = getCategory[i];
             }
 
-            returnList = videos;
+
+
+            let returnList = [];
+            let { lang } = req.body;
+            if (!lang) lang = "en";
+
+
+            const getCategory = await Category.find({ lang: lang }).lean();
+            for (var i = 0; i < getCategory.length; i++) {
+                let videos = await Video.find({ categoryId: getCategory[i]._id }).limit(4).lean();
+                for (var q = 0; q < videos.length; q++) {
+                    const currentVideo = videos[q];
+                    currentVideo.lock = true;
+
+
+                    if (currentVideo.freeTrial) {
+                        currentVideo.lock = false;
+                    }
+                    else if (userAccessVideos.includes(currentVideo._id)) {
+                        currentVideo.lock = false;
+                    }
+
+                    if (currentVideo.lock == true) // güvenlik
+                    {
+                        currentVideo.videoSource = "";
+                    }
+
+
+                    videos[q].category = getCategory[i];
+                }
+
+                returnList = videos;
+            }
+
+
+            for (var x = 0; x < returnList.length; x++) {
+                returnList[x].videoparts = await VideoPart.find({ videoId: returnList[x]._id }).lean();
+            }
+
+
+            res.send({ data: returnList })
         }
-
-
-        for (var x = 0; x < returnList.length; x++) {
-            returnList[x].videoparts = await VideoPart.find({ videoId: returnList[x]._id }).lean();
-        }
-
-
-        res.send({ data: returnList })
     }
-}
     else {
         new errorHandler(res, 500, 0);
     }
