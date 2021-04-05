@@ -72,70 +72,48 @@ async function isEmailAlready(email) {
 const registerUser = async (req, res) => {
 
 
-    if (!req.cookies.token) {
-        const params = [
-            'firstName',
-            'lastName',
-            'email',
-            'password',
-            'country',
-            'university',
-            'city',
-            'phone'
-        ];
 
-        if (!checkMissingParams(params, req, res)) return;
 
-        let { firstName, lastName, email, password, city, country, university, phone } = req.body;
-        firstName = CapitalizeString(firstName);
-        lastName = CapitalizeString(lastName);
-        email = email.toLowerCase();
+    let { firstName, lastName, email, password, city, country, university, phone } = req.body;
+    firstName = CapitalizeString(firstName);
+    lastName = CapitalizeString(lastName);
+    email = email.toLowerCase();
 
 
 
-        if (
-            firstNameValidator(firstName, res) &&
-            lastNameValidator(lastName, res) &&
-            passwordValidator(password, res) &&
-            await emailValidator(email, res)
-        ) {
+    if (
+        firstNameValidator(firstName, res) &&
+        lastNameValidator(lastName, res) &&
+        passwordValidator(password, res) &&
+        await emailValidator(email, res)
+    ) {
 
-            const newUser = new User({
-                firstName,
-                lastName,
-                email,
-                hash: bcrypt.hashSync(password, 12),
-                country,
-                university,
-                city,
-                phone
-            });
-
-
-
-            await newUser.save(); // Insert to database
-            const token = createJWT(email, newUser._id) // Create token
-            res.cookie('token', token); // set token to the cookie
-            res.status(200).send({ message: "User registered successfully", token: token, user: newUser }) // send response;
+        const newUser = new User({
+            firstName,
+            lastName,
+            email,
+            hash: bcrypt.hashSync(password, 12),
+            country,
+            university,
+            city,
+            phone
+        });
 
 
 
+        await newUser.save(); // Insert to database
+        const token = createJWT(email, newUser._id) // Create token
+        res.cookie('token', token); // set token to the cookie
+        res.status(200).send({ message: "User registered successfully", token: token, user: newUser }) // send response;
 
-        }
+
 
 
     }
-    else {
-        res.status(500).send({ message: "You are already logged in" });
-    }
 
 
+}
 
-
-
-
-
-};
 
 const logOut = async (req, res) => {
 
