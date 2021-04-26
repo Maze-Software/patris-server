@@ -703,6 +703,12 @@ const getWatchedInfo = async (req, res) => {
 }
 
 const paymentForm = async (req, res) => {
+
+    if (config.appstoreReview) {
+        res.send("Payment is disabled, We are working on app store in-app purchases system");
+        return;
+    }
+
     // try {
     const { userToken, priceId } = req.body;
     const getPrice = await Prices.findById(priceId);

@@ -557,7 +557,7 @@ const getPrices = async (req, res) => {
       res.status(200).send({ prices: prices });
     } else {
       const prices = await Prices.find({ lang: lang }).sort({ month: 1 });
-      res.status(200).send({ price: prices });
+      res.status(200).send({ price: prices, appstoreReview: config.appstoreReview });
     }
   } catch (e) {
     // console.log(e)
