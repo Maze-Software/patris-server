@@ -14,7 +14,8 @@ const userSchema = new Schema({
     phone: { type: String, required: false },
     subscription: { type: Boolean, required: false, default: false },
     subscriptionEndDate: { type: Date, required: false, default: new Date },
-    priceId: { type: String, required: false, default: null }
+    priceId: { type: String, required: false, default: null },
+    lang: { type: String, required: false, default: "en" },
 });
 
 

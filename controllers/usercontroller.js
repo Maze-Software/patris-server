@@ -87,7 +87,7 @@ const registerUser = async (req, res) => {
 
         if (!checkMissingParams(params, req, res)) return;
 
-        let { firstName, lastName, email, password, city, country, university, phone } = req.body;
+        let { firstName, lastName, email, password, city, country, university, phone, lang } = req.body;
         firstName = CapitalizeString(firstName);
         lastName = CapitalizeString(lastName);
         email = email.toLowerCase();
@@ -109,7 +109,8 @@ const registerUser = async (req, res) => {
                 country,
                 university,
                 city,
-                phone
+                phone,
+                lang: lang ? lang : "en"
             });
 
 
@@ -303,8 +304,9 @@ const getListCombo = async (req, res) => {
     if (token) {
         var userResult = jwt.verify(token, config.privateKey);
         const user = await User.findOne({ email: userResult.email })
-        if (user) {
 
+        if (user) {
+            const lang = user.lang;
             let userSubscripton = false;
             let userAccessVideos = [];
 
@@ -321,8 +323,7 @@ const getListCombo = async (req, res) => {
 
 
             var comboList = [];
-            let { lang } = req.body;
-            if (!lang) lang = "en";
+
 
 
             const category = await Category.find({ lang }).lean();
