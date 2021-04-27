@@ -306,7 +306,7 @@ const getListCombo = async (req, res) => {
         const user = await User.findOne({ email: userResult.email })
 
         if (user) {
-            const lang = user.lang;
+            const lang = user.lang.toLocaleLowerCase();
             let userSubscripton = false;
             let userAccessVideos = [];
 
