@@ -711,10 +711,46 @@ const paymentForm = async (req, res) => {
 
     res.send("ödeme sayfası")
 }
+var base64 = require('base-64');
+var crypto = require('crypto');
 const paymentCallBack = async (req, res) => {
-    console.log(req.body)
+    const osbUsername = "623117c770a29cbfd0215f36982c47f3";
+    const osbKey = "38caad28030506a21923e985ab268cc4";
 
-    res.send("ok")
+
+    if (req.body.res && req.body.hash) {
+        const content = JSON.parse(base64.decode(req.body.res)) // 0..TL, 1..USD, 2...EUR
+        const email = content.email
+        const productId = content.productid
+        const orderId = content.orderid
+        const user = await User.findOne({ email: email })
+        if (!user) {
+            res.send("Your email is not registered. Please send ticket to us with this order numer : " + content.orderid + " email:" + content.email + " product id : " + productId)
+            return "";
+        }
+        const getProduct = await Prices.findOne({ shopierId: productId })
+        if (!getProduct) {
+            res.send("Product is not found. Please send ticket to us with this order numer : " + content.orderid + " email:" + content.email + " product id : " + productId)
+            return "";
+        }
+
+        const newDate = new Date();
+        const subscriptionEndDate = newDate.setMonth(newDate.getMonth() + getProduct.month)
+        await user.updateOne({ subscription: true, subscriptionEndDate: subscriptionEndDate, priceId: getProduct._id })
+        res.status(200).send(`
+        Payment is successful. Please restart the app ! /n
+        Ödeme başarılı. Lütfen Uygulamayı Yeniden Başlatın ! /n
+        Оплата прошла успешно. Пожалуйста, перезапустите приложение!
+        پرداخت موفقیت آمیز است. لطفاً برنامه را مجدداً راه اندازی کنید!`)
+
+
+
+
+
+    }
+
+
+
 
 }
 
