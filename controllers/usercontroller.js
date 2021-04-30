@@ -704,6 +704,22 @@ const getWatchedInfo = async (req, res) => {
 }
 
 const paymentForm = async (req, res) => {
+    if (config.appstoreReview) {
+        res.send("Payment is disabled, We are working on app store in-app purchases system");
+        return;
+    }
+
+    res.send("ödeme sayfası")
+}
+const paymentCallBack = async (req, res) => {
+    console.log(req.body)
+
+    res.send("ok")
+
+}
+
+
+const paymentFormIYZICO = async (req, res) => {
 
     if (config.appstoreReview) {
         res.send("Payment is disabled, We are working on app store in-app purchases system");
@@ -829,7 +845,7 @@ const paymentForm = async (req, res) => {
 
 }
 
-const paymentCallBack = async (req, res) => {
+const paymentCallBackIYZICO = async (req, res) => {
 
 
 
