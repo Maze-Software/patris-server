@@ -576,6 +576,7 @@ const changePrices = async (req, res) => {
         priceId,
         currency,
         priceText,
+        shopierId,
         priceContent,
         videos
       } = req.body;
@@ -583,6 +584,7 @@ const changePrices = async (req, res) => {
         lang: lang,
         month: month,
         price: price,
+        shopierId: shopierId,
         currency: currency,
         priceText: priceText,
         priceContent: priceContent,
@@ -619,12 +621,14 @@ const addPrices = async (req, res) => {
         currency,
         priceText,
         priceContent,
+        shopierId,
         videos
       } = req.body;
       const createPrice = new Prices({
         lang,
         month,
         price,
+        shopierId,
         currency,
         priceText,
         priceContent,
