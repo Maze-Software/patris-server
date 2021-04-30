@@ -763,7 +763,7 @@ const paymentForm = async (req, res) => {
       <body>
       
        <p>${langText[lang].emailText}</p>
-       <a href="https://shopier.com/${getProduct.shopierId}" type="button" class="btn btn-primary">${langText[lang].continue}</a>
+       <a href="https://shopier.com/${getProduct.shopierId}" type="button" class="btn btn-primary">${langText[lang].continue} email:${user.email}</a>
 
         <!-- Optional JavaScript; choose one of the two! -->
     
