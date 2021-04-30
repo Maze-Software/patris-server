@@ -728,21 +728,21 @@ const paymentForm = async (req, res) => {
     const langText = {
         tr: {
             continue: "Devam",
-            emailText: "Ödeme işleme sırasında lütfen emailinizi ve adınızı kayıtlı olduğunuz email adresi ve adınız şeklinde yazın aksi takdirde, ödemeniz geçersiz sayılır."
+            emailText: "Ödeme işleme sırasında lütfen emailinizi ve adınızı kayıtlı olduğunuz email adresi ve adınız şeklinde yazın aksi takdirde, ödemeniz geçersiz sayılır. Ödeme yaptıkdan sonra uygulamayı yeniden başlatmayı unutmayın !"
         },
         en: {
             continue: "Continue",
-            emailText: "During the payment processing, please write your email and name as your registered e-mail address and your name, otherwise your payment will be deemed invalid."
+            emailText: "During the payment processing, please write your email and name as your registered e-mail address and your name, otherwise your payment will be deemed invalid. Don't forget to restart the app after your payment !"
         },
         per:
         {
             continue: "ادامه هید",
-            emailText: "در هنگام پردازش پرداخت ، لطفاً ایمیل و نام خود را به عنوان آدرس پست الکترونیکی ثبت شده و نام خود بنویسید ، در غیر این صورت پرداخت شما نامعتبر شناخته می شود.",
+            emailText: "فراموش نکنید که برنامه را پس از پرداخت دوباره راه اندازی کنید! در هنگام پردازش پرداخت ، لطفاً ایمیل و نام خود را به عنوان آدرس پست الکترونیکی ثبت شده و نام خود بنویسید ، در غیر این صورت پرداخت شما نامعتبر شناخته می شود.",
 
         },
         ru: {
             continue: "Продолжать",
-            emailText: "Во время обработки платежа укажите свой адрес электронной почты и имя в качестве зарегистрированного адреса электронной почты и свое имя, иначе ваш платеж будет считаться недействительным.",
+            emailText: "Во время обработки платежа укажите свой адрес электронной почты и имя в качестве зарегистрированного адреса электронной почты и свое имя, иначе ваш платеж будет считаться недействительным. Не забудьте перезапустить приложение после оплаты!",
 
         }
 
