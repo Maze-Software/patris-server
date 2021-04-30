@@ -703,13 +703,88 @@ const getWatchedInfo = async (req, res) => {
     }
 }
 
+
 const paymentForm = async (req, res) => {
     if (config.appstoreReview) {
         res.send("Payment is disabled, We are working on app store in-app purchases system");
         return;
     }
+    const { userToken, priceId } = req.body;
+    if (!userToken || !priceId) {
+        res.send("userToken or price null");
+        return;
+    }
+    const getProduct = await Prices.findById(priceId);
+    const result = jwt.verify(userToken, config.privateKey);
+    const user = await User.findOne({ email: result.email })
+    const lang = user.lang
 
-    res.send("ödeme sayfası")
+
+    if (!user || !getProduct) {
+        res.send("Error, couldn't access user token or product information")
+        return "";
+    }
+
+    const langText = {
+        tr: {
+            continue: "Devam",
+            emailText: "Ödeme işleme sırasında lütfen emailinizi ve adınızı kayıtlı olduğunuz email adresi ve adınız şeklinde yazın aksi takdirde, ödemeniz geçersiz sayılır."
+        },
+        en: {
+            continue: "Continue",
+            emailText: "During the payment processing, please write your email and name as your registered e-mail address and your name, otherwise your payment will be deemed invalid."
+        },
+        per:
+        {
+            continue: "ادامه هید",
+            emailText: "در هنگام پردازش پرداخت ، لطفاً ایمیل و نام خود را به عنوان آدرس پست الکترونیکی ثبت شده و نام خود بنویسید ، در غیر این صورت پرداخت شما نامعتبر شناخته می شود.",
+
+        },
+        ru: {
+            continue: "Продолжать",
+            emailText: "Во время обработки платежа укажите свой адрес электронной почты и имя в качестве зарегистрированного адреса электронной почты и свое имя, иначе ваш платеж будет считаться недействительным.",
+
+        }
+
+    }
+    res.status(200).send(`
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+    
+        <title>Payment</title>
+      </head>
+      <body>
+      
+       <p>${langText[lang].emailText}</p>
+       <a href="https://shopier.com/${getProduct.shopierId}" type="button" class="btn btn-primary">${langText[lang].continue}</a>
+
+        <!-- Optional JavaScript; choose one of the two! -->
+    
+        <!-- Option 1: Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+    
+        <!-- Option 2: Separate Popper and Bootstrap JS -->
+        <!--
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js" integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js" integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous"></script>
+        -->
+        <style>
+            body{display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                padding: 40px;}
+        </style/>
+      </body>
+    </html>
+    `)
 }
 var base64 = require('base-64');
 var crypto = require('crypto');

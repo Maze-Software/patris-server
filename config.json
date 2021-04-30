@@ -2,7 +2,7 @@
   "DBuri": "mongodb://mongoloide:Caner123@3.124.1.199:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false",
   "privateKey": "secretKey00009",
   "mailAdress": "med.mesbah9189@gmail.com",
-  "appstoreReview": true,
+  "appstoreReview": false,
   "iyziCo": {
     "apiKey": "sandbox-gi4Xr0kCAnf3pC6gz0sK99eqU4c9GYRR",
     "secretKey": "sandbox-f3fVGFkpNxRAKxVMNktbMcNLkmZFsgnR",
