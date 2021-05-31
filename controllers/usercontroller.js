@@ -727,7 +727,7 @@ const paymentForm = async (req, res) => {
     const result = jwt.verify(userToken, config.privateKey);
     const user = await User.findOne({ email: result.email })
     const lang = user.lang
-    console.log("Product", getProduct)
+    // console.log("Product", getProduct)
 
     if (!user || !getProduct) {
         res.send("Error, couldn't access user token or product information")
@@ -794,7 +794,7 @@ const paymentForm = async (req, res) => {
     var parser = require('xml2json');
     // xml to json
     var json = parser.toJson(res2.data, { object: true });
-    console.log(json);
+    // console.log(json);
     const cutomer_id = json.response.pg_redirect_url.split("/").pop().substring(18)
 
 
@@ -823,7 +823,7 @@ const activateUserSubscription = async (paymentId, res) => {
     const findPayment = await Payments.findOne({ paymentId: paymentId })
 
     const user = await User.findById(findPayment.userId)
-    console.log(user)
+    // console.log(user)
     if (user) {
         const newPayment = await findPayment.updateOne({ isPaid: true })
         const newDate = new Date();
@@ -842,7 +842,7 @@ var crypto = require('crypto');
 const paymentCallBack = async (req, res) => {
 
 
-    console.log(req.body)
+    // console.log(req.body)
     activateUserSubscription(req.body.pg_payment_id, res)
     // pg_order_id: 'lnytlnw3i',
     // pg_payment_id: '482861159',
