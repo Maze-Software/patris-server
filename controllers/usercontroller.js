@@ -818,7 +818,7 @@ const paymentForm = async (req, res) => {
 
 }
 
-const activateUserSubscription = async (paymentId) => {
+const activateUserSubscription = async (paymentId, res) => {
 
     const findPayment = await Payments.findOne({ paymentId: paymentId })
 
@@ -843,7 +843,7 @@ const paymentCallBack = async (req, res) => {
 
 
     console.log(req.body)
-    activateUserSubscription(req.body.pg_payment_id)
+    activateUserSubscription(req.body.pg_payment_id, res)
     // pg_order_id: 'lnytlnw3i',
     // pg_payment_id: '482861159',
     // pg_salt: '4F3MfALcBWKwJQrm',
