@@ -802,6 +802,7 @@ const paymentForm = async (req, res) => {
         userId: user._id,
         iyziCoToken: "TOKEN YOK",
         customerId: cutomer_id,
+        paymentId: json.response.pg_payment_id,
         amount: getProduct.price,
         subscriptionType: getProduct.month,
         date: new Date(),
@@ -816,13 +817,37 @@ const paymentForm = async (req, res) => {
 
 
 }
+
+const activateUserSubscription = async (paymentId) => {
+
+    const findPayment = await Payments.findOne({ paymentId: paymentId })
+
+    const user = await User.findById(findPayment.userId)
+    console.log(user)
+    if (user) {
+        const newPayment = await findPayment.updateOne({ isPaid: true })
+        const newDate = new Date();
+        const subscriptionEndDate = newDate.setMonth(newDate.getMonth() + findPayment.subscriptionType)
+        await user.updateOne({ subscription: true, subscriptionEndDate: subscriptionEndDate, priceId: findPayment.priceId })
+        res.status(200).send("Payment is successful")
+    }
+    else {
+        res.send("Error occoured while payment")
+    }
+
+}
+
 var base64 = require('base-64');
 var crypto = require('crypto');
 const paymentCallBack = async (req, res) => {
 
 
     console.log(req.body)
-
+    activateUserSubscription(req.body.pg_payment_id)
+    // pg_order_id: 'lnytlnw3i',
+    // pg_payment_id: '482861159',
+    // pg_salt: '4F3MfALcBWKwJQrm',
+    // pg_sig: 'b9a6b76b52d13b99c43dea6fc0050c7b'
 
 }
 

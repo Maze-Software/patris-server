@@ -11,7 +11,8 @@ const paymentsSchema = new Schema({
     date: { type: Date, required: true },
     isPaid: { type: Boolean, required: true, default: false },
     priceId: { type: String, required: true },
-    customerId: { type: String, required: false }
+    customerId: { type: String, required: false },
+    paymentId: { type: String, required: false },
 
 });
 
