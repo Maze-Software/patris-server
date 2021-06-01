@@ -515,8 +515,14 @@ const isUserSubscribed = async (req, res) => {
     const token = req.cookies.token;
     if (token) {
         var userResult = jwt.verify(token, config.privateKey);
-        const user = await User.findOne({ email: userResult.email })
+        var user = await User.findOne({ email: userResult.email })
         if (user) {
+
+            const _controlPrevPayment = await controlPrevPayment(user);
+            if (_controlPrevPayment) {
+                user = await User.findOne({ email: userResult.email })
+            }
+
             let subscriptionEndDate = new Date(user.subscriptionEndDate).getTime();
             let nowDate = new Date().getTime();
             // if (user.subscription && nowDate < subscriptionEndDate) 
@@ -702,9 +708,32 @@ const getWatchedInfo = async (req, res) => {
         console.log(e)
     }
 }
+const controlPrevPayment = async (user, res = null) => {
 
+    const filterDate = new Date();
+    filterDate.setMinutes(filterDate.getMinutes() - 7200);
+
+
+    const paidBefore = await Payments.findOne({ userId: user._id, isPaid: false, date: { $gt: filterDate } }).sort({ date: -1 })
+    if (paidBefore) {
+        const paymentStatus = await getPaymentStatus(paidBefore.paymentId);
+
+        if (paymentStatus) {
+            await activateUserSubscription(paidBefore.paymentId, res);
+            return true;
+        }
+        else {
+            // silebiliriz paymenti
+            await Payments.findByIdAndRemove(paidBefore._id);
+            return false;
+        }
+    }
+
+}
 
 const paymentForm = async (req, res) => {
+
+
 
     const currencies = [
         "RUR",
@@ -733,6 +762,9 @@ const paymentForm = async (req, res) => {
         res.send("Error, couldn't access user token or product information")
         return "";
     }
+
+
+
 
     const pg_merchant_id = "538933";
     const secret_key = "YbKQc0mq9t9GB0fb";
@@ -818,7 +850,7 @@ const paymentForm = async (req, res) => {
 
 }
 
-const activateUserSubscription = async (paymentId, res) => {
+const activateUserSubscription = async (paymentId, res = null) => {
 
     const findPayment = await Payments.findOne({ paymentId: paymentId })
 
@@ -829,10 +861,10 @@ const activateUserSubscription = async (paymentId, res) => {
         const newDate = new Date();
         const subscriptionEndDate = newDate.setMonth(newDate.getMonth() + findPayment.subscriptionType)
         await user.updateOne({ subscription: true, subscriptionEndDate: subscriptionEndDate, priceId: findPayment.priceId })
-        res.status(200).send("Payment is successful")
+        if (res) res.status(200).send("Payment is successful")
     }
     else {
-        res.send("Error occoured while payment")
+        if (res) res.send("Error occoured while payment")
     }
 
 }
@@ -1295,5 +1327,69 @@ const takeScreenShot = async (req, res) => {
 
     // }
 }
+
+
+async function getPaymentStatus(payment_id) {
+    const pg_merchant_id = "538933";
+    const secret_key = "YbKQc0mq9t9GB0fb";
+    const url = "https://api.paybox.money/get_status.php";
+    var md5 = require('md5');
+    let request = [
+        url.split('/').pop(),
+        { pg_merchant_id: pg_merchant_id },
+        { pg_payment_id: payment_id },
+        { pg_salt: "LM9RhvtI3CNw3CoC" },
+
+    ];
+
+    request.sort(function (a, b) {
+        var keyA = Object.keys(a)[0],
+            keyB = Object.keys(b)[0];
+        // Compare
+        if (keyA < keyB) return -1;
+        if (keyA > keyB) return 1;
+        return 0;
+    });
+
+    request.push(secret_key)
+    const finish = request.map((e) => {
+        if (typeof e == 'object') {
+            return e[Object.keys(e)[0]]
+        }
+        else {
+            return e
+        }
+    });
+
+    //init;100;1234;Описание платежа;538933;12345;some random string;1234;0ZOznEKNn2CrNYLY
+    const md5hash = md5(finish.join(";"));
+    request = request.filter(e => typeof e == 'object');
+    request.push({ pg_sig: md5hash })
+
+
+
+    const requestObj = {};
+
+
+    request.forEach(obj => {
+        requestObj[Object.keys(obj)] = obj[Object.keys(obj)]
+    })
+
+
+    // //POST ATMA
+
+    const axios = require("axios");
+    const res = await axios.default.get(url, {
+        params: {
+            ...requestObj
+        }
+    });
+
+    var parser = require('xml2json');
+    // xml to json
+    var json = parser.toJson(res.data, { object: true });
+    return json.response.pg_transaction_status == "ok";
+}
+
 
 module.exports = { getScreenShotRemains, takeScreenShot, registerUser, logOut, login, getVideo, getAllVideos, getCategory, getAllCategories, getAllVideoParts, getVideoPart, refreshToken, changeUserProfile, isUserSubscribed, changePassword, sendMail, forgetPassword, watchedInfo, getWatchedInfo, paymentForm, paymentCallBack, getListCombo, getSuggestedVideos };
