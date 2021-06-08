@@ -507,6 +507,7 @@ const changeSettings = async (req, res) => {
         savedColor,
         contact,
         navigationColor,
+        pageBackgroundColor
       } = req.body;
 
       const settingsCount = await Settings.estimatedDocumentCount();
@@ -522,6 +523,7 @@ const changeSettings = async (req, res) => {
             savedColor,
             contact,
             navigationColor,
+            pageBackgroundColor
           }
         );
         res
@@ -537,6 +539,7 @@ const changeSettings = async (req, res) => {
           savedColor,
           contact,
           navigationColor,
+          pageBackgroundColor
         });
         newSettings.save();
         res.status(200).send({ message: "created" });
