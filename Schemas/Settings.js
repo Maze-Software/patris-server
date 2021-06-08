@@ -12,7 +12,8 @@ const settingsSchema = new Schema({
     savedColor: { type: String, required: true },
     contact: { type: String, required: true },
     navigationColor: { type: String, required: true },
-    pageBackgroundColor: { type: String, required: true }
+    pageBackgroundColor: { type: String, required: true },
+    share: { type: String, required: false, default: "" },
 });
 
 settingsSchema.set('toJSON', { virtuals: true });
