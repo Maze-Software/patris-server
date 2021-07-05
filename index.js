@@ -60,6 +60,7 @@ app.use("/api/user/getlistcombo", require("./routes/GetListCombo"));
 app.use("/api/user/getsuggestedvideos", require("./routes/GetSuggestedVideos"));
 app.use("/api/user/getsettings", require("./routes/Admin/GetSettings"));
 app.use("/api/screenshot", require("./routes/ScreenShot"));
+app.use("/api/termsandcondition", require("./routes/Termsandcondition"));
 
 // ADMIN ICIN
 app.use("/api/adminlogin", require("./routes/Admin/AdminLogin"));
