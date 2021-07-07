@@ -424,7 +424,7 @@ const changeUserProfile = async (req, res) => {
             const token = req.cookies.token;
             var userResult = jwt.verify(token, config.privateKey);
             const user = await User.findOne({ email: userResult.email })
-
+            if (user._id == "609243189055c4209480afc6" || email == "test@test.com") return res.status(500).send("No account")
             if (user) {
 
                 let newToken = token;
