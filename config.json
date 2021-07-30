@@ -1,5 +1,5 @@
 {
-  "DBuri": "mongodb://mongoloide:Caner123@3.124.1.199:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false",
+  "DBuri": "mongodb://mongoloide:Caner123@35.158.92.105:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false",
   "privateKey": "secretKey00009",
   "mailAdress": "med.mesbah9189@gmail.com",
   "appstoreReview": false,
